@@ -1,0 +1,2 @@
+# La Lambda de transformation utilise uniquement boto3 + librairies Python standard.
+# boto3 est déjà disponible dans l'environnement Lambda AWS.

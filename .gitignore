@@ -1,0 +1,27 @@
+# Python cache
+__pycache__/
+*.pyc
+.mypy_cache/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Secrets / local env
+.env
+*.env
+
+# Build and reports
+dist/
+build/
+.coverage
+htmlcov/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Local design/export files not to publish
+code.xml
+archi.drawio
