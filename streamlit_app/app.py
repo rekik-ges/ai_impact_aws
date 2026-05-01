@@ -87,15 +87,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 df = pd.read_csv("automation_risk_enriched.csv")
+if "domain" not in df.columns:
+    # Compatibilite avec les anciennes sorties sans colonne domain.
+    df["domain"] = df["industry"]
 
 st.markdown('<div class="title">AI Job Impact Explorer</div>', unsafe_allow_html=True)
 
 st.sidebar.markdown("""
 <div class="sidebar-text">
 Aujourd’hui, l’intelligence artificielle transforme profondément le monde du travail.
-Quels secteurs seront les plus impactés ? Quels métiers devront évoluer ?
+Quels domaines seront les plus impactés ? Quels métiers devront évoluer ?
 <br><br>
-Les analyses globales ne sont pas filtrées. Les sections ciblées permettent ensuite d’explorer un secteur ou un métier précis.
+Les analyses globales ne sont pas filtrées. Les sections ciblées permettent ensuite d’explorer un domaine ou un métier précis.
 </div>
 """, unsafe_allow_html=True)
 
@@ -108,23 +111,23 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ======================
-# SECTEURS — NON FILTRABLE
+# DOMAINES — NON FILTRABLE
 # ======================
-st.markdown('<div class="section">Quels secteurs sont les plus impactés ?</div>', unsafe_allow_html=True)
+st.markdown('<div class="section">Quels domaines sont les plus impactés ?</div>', unsafe_allow_html=True)
 
-sector = (
-    df.groupby("industry")["automation_risk_pct"]
+domain_df = (
+    df.groupby("domain")["automation_risk_pct"]
     .mean()
     .sort_values()
     .reset_index()
 )
 
 fig = px.bar(
-    sector,
+    domain_df,
     x="automation_risk_pct",
-    y="industry",
+    y="domain",
     orientation="h",
-    text=sector["automation_risk_pct"].round(1).astype(str) + "%",
+    text=domain_df["automation_risk_pct"].round(1).astype(str) + "%",
     color_discrete_sequence=["#3b82f6"]
 )
 

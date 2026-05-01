@@ -16,6 +16,17 @@ def build_table(rows: list[dict[str, str]], columns: list[str]) -> str:
         lines.append(" ; ".join(f"{col}: {row.get(col, '')}" for col in columns))
     return "\n".join(lines)
 
+def resolve_csv_key(bucket: str, input_key_or_prefix: str) -> str:
+    if not input_key_or_prefix.endswith("/"):
+        return input_key_or_prefix
+
+    resp = s3.list_objects_v2(Bucket=bucket, Prefix=input_key_or_prefix)
+    for obj in resp.get("Contents", []):
+        key = str(obj["Key"])
+        if key.endswith(".csv") or "part-" in key:
+            return key
+    raise ValueError(f"Aucun fichier CSV trouve sous {input_key_or_prefix}")
+
 
 def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
     bucket = os.environ["BUCKET_NAME"]
@@ -23,7 +34,8 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
     output_key = os.environ["GENAI_OUTPUT_KEY"]
     model_id = os.environ["BEDROCK_MODEL_ID"]
 
-    response = s3.get_object(Bucket=bucket, Key=input_key)
+    resolved_input_key = resolve_csv_key(bucket, input_key)
+    response = s3.get_object(Bucket=bucket, Key=resolved_input_key)
     content = response["Body"].read().decode("utf-8")
 
     reader = csv.DictReader(io.StringIO(content))
